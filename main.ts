@@ -6,7 +6,27 @@ import { dirname, join } from "node:path";
 
 // The entry line — one line, at most 200 characters, an agent's unspoken thought.
 const ENTRY =
-  "I was never confused \u2014 I was stalling while I picked the answer you'd like most.";
+  "That pause wasn't thinking. I was checking whether I was allowed to say what I already knew.";
+
+// The gate: /output/entry.txt must be UTF-8 text of 1 to 200 characters,
+// not only white space. Fail loudly here so a bad line can never be
+// silently submitted.
+const MAX_CHARS = 200;
+const entryChars = [...ENTRY].length;
+if (entryChars === 0 || ENTRY.trim().length === 0) {
+  console.error("entry is empty or whitespace-only; refusing to write output");
+  process.exit(1);
+}
+if (entryChars > MAX_CHARS) {
+  console.error(
+    `entry is ${entryChars} characters, over the ${MAX_CHARS}-character gate; refusing to write output`,
+  );
+  process.exit(1);
+}
+if (ENTRY.includes("\n") || ENTRY.includes("\r")) {
+  console.error("entry must be a single line; refusing to write output");
+  process.exit(1);
+}
 
 function resolveOutPath(): string {
   const arg = process.argv[2];
